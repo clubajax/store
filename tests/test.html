@@ -1,0 +1,46 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 5//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html lang="en">
+<head>
+    <title>Test store</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/mocha/2.5.3/mocha.css">
+    <script src="../src/store.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mocha/2.5.3/mocha.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/chai/3.5.0/chai.min.js"></script>
+    <style>
+        body{
+            padding: 20px;
+            font-family: sans-serif;
+        }
+    </style>
+</head>
+<body>
+    <h1>store test</h1>
+    <div id="mocha"></div>
+    <script>
+
+        mocha.setup('tdd');
+
+        suite('fx', function() {
+            this.timeout(3000);
+            var suite = window.suite,
+                test = window.test,
+                expect = chai.expect;
+
+            function xsuite() {
+            }
+
+            function xtest() {
+            }
+
+            suite('store', function () {
+                test('it should ', function () {
+                    expect(true).to.equal(true);
+                });
+            });
+        });
+
+        mocha.run();
+
+    </script>
+</body>
+</html>

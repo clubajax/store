@@ -1,0 +1,13 @@
+{
+	"author": "Mike Wilcox @clubajax",
+	"name": "store",
+	"main":"src/store.js",
+	"description": "Data store for searching, sorting, and paginating items",
+	"version": "0.8.0",
+	"license": "MIT",
+    "readmeFilename": "README.md",
+	"repository": {
+        "type": "git",
+        "url": "git://github.com/clubajax/store.git"
+    }
+}

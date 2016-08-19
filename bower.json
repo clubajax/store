@@ -1,0 +1,14 @@
+{
+    "name": "store",
+    "version": "0.8.0",
+    "authors": [
+        "Mike Wilcox <anm9tr@gmail.com>"
+    ],
+    "description": "Data store for searching, sorting, and paginating items",
+    "license": "MIT",
+    "ignore": [
+        "node_modules",
+        "bower_components"
+    ],
+    "main": "src/store.js"
+}
