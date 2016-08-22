@@ -1,0 +1,10 @@
+    });
+}(
+ typeof define == 'function' && define.amd ? define : function (ids, factory) {
+    var deps = ids.map(function (id) {
+        return typeof require == 'function' ? require(id) : window[id];
+    });
+    typeof module !== 'undefined' ? module.exports = factory.apply(null, deps) : factory.apply(null, deps);
+}
+
+));
