@@ -4,6 +4,7 @@
     <title>Test store</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/mocha/2.5.3/mocha.css">
     <script src="../src/store.js"></script>
+    <script src="../src/plugins/memory/filter.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mocha/2.5.3/mocha.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/chai/3.5.0/chai.min.js"></script>
     <style>
@@ -24,17 +25,48 @@
             this.timeout(3000);
             var suite = window.suite,
                 test = window.test,
-                expect = chai.expect;
+                expect = chai.expect,
+                d1 = [{id:1,value:'a', type: 'alpha'},{id:1,value:'b', type: 'alpha'},{id:3,value:'c', type: 'beta'}],
+                d2 = [{id:4,value:'d', type: 'beta'},{id:5,value:'e', type: 'beta'},{id:6,value:'f', type: 'alpha'}],
+                d3 = [{name:'foo',value:'foo', type: 'alpha'},{name:'bar',value:'bar', type: 'beta', selected: true},{name:'zap',value:'zap', type: 'omega'},{name:'pew',value:'pew', type: 'gamma'}];
 
-            function xsuite() {
-            }
+            function xsuite() {}
+            function xtest() {}
 
-            function xtest() {
+            function values (items) {
+                return items.map(function (item) {
+                    return item.value
+                }).join(',');
             }
 
             suite('store', function () {
-                test('it should ', function () {
-                    expect(true).to.equal(true);
+                suite('get and set', function () {
+                    test('it should get and set', function () {
+                        var s = store();
+                        s.add(d1);
+                        expect(s.get()).to.equal(d1);
+                        expect(s.get(1).value).to.equal('a');
+                        s.add(d2);
+                        expect(s.get().length).to.equal(6);
+                    });
+                    test('it should handle items with a `name` identifier', function () {
+                        var s = store({identifier: 'name'});
+                        s.add(d3);
+                        expect(s.get('zap').value).to.equal('zap');
+                    });
+                    test('it should get an item with an alternative attribute', function () {
+                        var s = store({identifier: 'name'});
+                        s.add(d3);
+                        expect(s.get(true, 'selected').value).to.equal('bar');
+                    });
+                });
+
+                suite('filter', function () {
+                    test('it should filter', function () {
+                        var s = store({plugins:['filter']});
+                        s.add(d1);
+                        expect(values(s.filter('type', 'alpha'))).to.equal('a,b');
+                    });
                 });
             });
         });
