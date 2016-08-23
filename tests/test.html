@@ -5,6 +5,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/mocha/2.5.3/mocha.css">
     <script src="../src/store.js"></script>
     <script src="../src/plugins/filter.js"></script>
+    <script src="../src/plugins/sort.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mocha/2.5.3/mocha.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/chai/3.5.0/chai.min.js"></script>
     <style>
@@ -88,6 +89,21 @@
                         s.add(d1);
                         r = s.fetch({filter:{type:'alpha||beta',category:'greek'}});
                         expect(values(r)).to.equal('a,c');
+                    });
+                });
+
+                suite('sort', function () {
+                    test('it should sort on a set of params', function () {
+                        var r, s = store({plugins: ['sort']});
+                        s.add(d1);
+                        r = s.fetch({sort: {key: 'value'}});
+                        expect(values(r)).to.equal('a,b,c');
+                    });
+                    test('it should sort `asc` on a set of params', function () {
+                        var r, s = store({plugins: ['sort']});
+                        s.add(d1);
+                        r = s.fetch({sort: {key: 'value', dir:'asc'}});
+                        expect(values(r)).to.equal('c,b,a');
                     });
                 });
             });

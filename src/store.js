@@ -76,7 +76,6 @@
                     //};
                     currentParams = mix(currentParams, params);
                     var i, items = this.items;
-                    console.log('items', this.items);
                     for(i = 0; i < plugins.length; i++){
                         items = plugins[i](items, currentParams, this);
                     }
