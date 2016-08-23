@@ -62,11 +62,19 @@
                 });
 
                 suite('filter', function () {
-                    test('it should filter', function () {
+                    test('it should filter on a set of params', function () {
                         var r, s = store({plugins:['filter']});
                         s.add(d1);
                         r = s.fetch({filter:{type:'alpha'}});
                         expect(values(r)).to.equal('a,b');
+                    });
+                    test('it should filter on multiple sets of params', function () {
+                        var r, s = store({plugins:['filter']});
+                        s.add(d1);
+                        s.add(d2);
+                        s.add(d3);
+                        r = s.fetch({filter:{type:'alpha||omega'}});
+                        expect(values(r)).to.equal('a,b,f,foo,zap');
                     });
                 });
             });
