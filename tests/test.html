@@ -4,7 +4,7 @@
     <title>Test store</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/mocha/2.5.3/mocha.css">
     <script src="../src/store.js"></script>
-    <script src="../src/plugins/memory/filter.js"></script>
+    <script src="../src/plugins/filter.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mocha/2.5.3/mocha.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/chai/3.5.0/chai.min.js"></script>
     <style>
@@ -44,10 +44,10 @@
                     test('it should get and set', function () {
                         var s = store();
                         s.add(d1);
-                        expect(s.get()).to.equal(d1);
+                        expect(s.get()).to.equal(null);
                         expect(s.get(1).value).to.equal('a');
                         s.add(d2);
-                        expect(s.get().length).to.equal(6);
+                        expect(s.fetch().length).to.equal(6);
                     });
                     test('it should handle items with a `name` identifier', function () {
                         var s = store({identifier: 'name'});
@@ -63,9 +63,10 @@
 
                 suite('filter', function () {
                     test('it should filter', function () {
-                        var s = store({plugins:['filter']});
+                        var r, s = store({plugins:['filter']});
                         s.add(d1);
-                        expect(values(s.filter('type', 'alpha'))).to.equal('a,b');
+                        r = s.fetch({filter:{type:'alpha'}});
+                        expect(values(r)).to.equal('a,b');
                     });
                 });
             });

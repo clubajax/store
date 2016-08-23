@@ -5,12 +5,16 @@
     function store(options) {
         options = options || {};
         var
+            // can't be private - plugins need access
             defaults = {
                 identifier: 'id'
             },
+            plugins = [],
+            currentParams = {},
             dataStore = {
 
                 add: function (items) {
+                    // add item or items to existing
                     if (!this.items) {
                         return this.set(items);
                     }
@@ -24,16 +28,15 @@
                 },
 
                 set: function (items) {
-                    // handle columns?
-                    this.items = items;
+                    // sets all items - overwrites existing items, if any
+                    this.orgItems = items;
+                    this.items = items.concat([]);
                     this.update();
                 },
 
                 get: function (value, optionalIdentifier) {
-                    if (!value) {
-                        return this.items;
-                    }
-                    if (!this.items) {
+                    // always returns one item or null
+                    if (!value || !this.items) {
                         return null;
                     }
                     var i, key = optionalIdentifier || options.identifier || defaults.identifier;
@@ -49,17 +52,47 @@
                 update: function () {
                     // run through plugins to sort, paginate, etc
                     // or sync with server
+                    //
+                    // or just mark dirty?
                 },
 
-                search: function () {
+                fetch: function (params) {
+                    //this.params = {
+                    //    filter:{
+                    //
+                    //    },
+                    //    sort: {
+                    //
+                    //    },
+                    //    segment: {
+                    //
+                    //    },
+                    //    paginate: {
+                    //
+                    //    },
+                    //    search:{
+                    //
+                    //    }
+                    //};
+                    currentParams = mix(currentParams, params);
+                    var i, items = this.items;
+                    console.log('items', this.items);
+                    for(i = 0; i < plugins.length; i++){
+                        items = plugins[i](items, currentParams, this);
+                    }
+                    return items;
+                },
+
+                load: function (url) {
+                    // memory store, fetch initial data
+                    // need loaded, or is ready?
+                },
+
+                filter: function (items) {
 
                 },
 
                 sort: function () {
-
-                },
-
-                filter: function () {
 
                 },
 
@@ -69,21 +102,47 @@
 
                 paginate: function () {
 
+                },
+
+                search: function () {
+
                 }
             };
 
         (options.plugins || []).forEach(function (pluginName) {
-            var plugin = store.plugins[pluginName];
-            plugin(dataStore);
+            var
+                i,
+                plugin = store.plugins[pluginName],
+                order = plugin.order;
+            if(!plugins.length){
+                plugins.push(plugin);
+            }else{
+                for(i = 1; i < plugins.length; i++){
+                    if(order === plugins[i-1].order || (order > plugins[i-1].order && order < plugins[i].order)){
+                        plugins.splice(i, 0, plugin);
+                        break;
+                    }
+                }
+            }
         });
 
         return dataStore;
     }
 
     store.plugins = {};
-    store.addPlugin = function (type, plugin) {
+    store.addPlugin = function (type, plugin, order) {
+        plugin.order = order || 100;
         store.plugins[type] = plugin;
     };
+
+    function mix (o, p) {
+        if(p) {
+            Object.keys(p).forEach(function (key) {
+                o[key] = p[key];
+            });
+        }
+        return o;
+    }
 
     if (typeof customLoader === 'function') {
         customLoader(store, 'store');
