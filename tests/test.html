@@ -26,9 +26,10 @@
             var suite = window.suite,
                 test = window.test,
                 expect = chai.expect,
-                d1 = [{id:1,value:'a', type: 'alpha'},{id:1,value:'b', type: 'alpha'},{id:3,value:'c', type: 'beta'}],
-                d2 = [{id:4,value:'d', type: 'beta'},{id:5,value:'e', type: 'beta'},{id:6,value:'f', type: 'alpha'}],
-                d3 = [{name:'foo',value:'foo', type: 'alpha'},{name:'bar',value:'bar', type: 'beta', selected: true},{name:'zap',value:'zap', type: 'omega'},{name:'pew',value:'pew', type: 'gamma'}];
+                d1 = [{id:1,value:'a', type: 'alpha', category: 'greek'},{id:1,value:'b', type: 'alpha', category: 'latin'},{id:3,value:'c', type: 'beta', category: 'greek'}],
+                d2 = [{id:4,value:'d', type: 'beta', category: 'greek'},{id:5,value:'e', type: 'beta', category: 'greek'},{id:6,value:'f', type: 'alpha', category: 'latin'}],
+                d3 = [{name:'foo',value:'foo', type: 'alpha', category: 'greek'},{name:'bar',value:'bar', type: 'beta', selected: true, category: 'greek'},
+                    {name:'zap',value:'zap', type: 'omega'},{name:'pew',value:'pew', type: 'gamma', category: 'latin'}];
 
             function xsuite() {}
             function xtest() {}
@@ -68,13 +69,25 @@
                         r = s.fetch({filter:{type:'alpha'}});
                         expect(values(r)).to.equal('a,b');
                     });
-                    test('it should filter on multiple sets of params', function () {
+                    test('it should filter on OR params', function () {
                         var r, s = store({plugins:['filter']});
                         s.add(d1);
                         s.add(d2);
                         s.add(d3);
                         r = s.fetch({filter:{type:'alpha||omega'}});
                         expect(values(r)).to.equal('a,b,f,foo,zap');
+                    });
+                    test('it should filter on AND params', function () {
+                        var r, s = store({plugins:['filter']});
+                        s.add(d1);
+                        r = s.fetch({filter:{type:'alpha',category:'latin'}});
+                        expect(values(r)).to.equal('b');
+                    });
+                    test('it should filter on AND and OR params', function () {
+                        var r, s = store({plugins:['filter']});
+                        s.add(d1);
+                        r = s.fetch({filter:{type:'alpha||beta',category:'greek'}});
+                        expect(values(r)).to.equal('a,c');
                     });
                 });
             });

@@ -9,27 +9,32 @@
     // {type: 'alpha', category: 'greek'}
 
     function filter (items, params, store) {
-        var i, filtered = [], value;
+        var i, filtered = [], value, propCount, propTotal;
         if(!params.filter){
             return items;
         }
+        propTotal = Object.keys(params.filter).length;
         for(i = 0; i < items.length; i++){
+            propCount = 0;
             Object.keys(params.filter).forEach(function (key) {
                 value = params.filter[key];
                 if(value.indexOf('||') > -1){
                     value.split('||').forEach(function (v) {
                         v = v.trim();
                         if (items[i][key] === v) {
-                            filtered.push(items[i]);
+                            propCount++;
                         }
                     });
 
-                }else {
+                }else{
                     if (items[i][key] === value) {
-                        filtered.push(items[i]);
+                        propCount++;
                     }
                 }
             });
+            if(propCount === propTotal){
+                filtered.push(items[i]);
+            }
         }
         return filtered;
     }
