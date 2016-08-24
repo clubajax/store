@@ -87,20 +87,34 @@
                 }
             };
 
-        (options.plugins || []).forEach(function (pluginName) {
+        toArray(options.plugins).forEach(function (pluginName) {
             var
                 i,
                 plugin = store.plugins[pluginName],
                 order = plugin.order;
-            if(!plugins.length){
+
+            if(!plugins.length) {
                 plugins.push(plugin);
-            }else{
+            }
+            else if(plugins.length === 1){
+                if(plugins[0].order <= order){
+                    plugins.push(plugin);
+                }else{
+                    plugins.unshift(plugin);
+                }
+            }
+            else{
                 for(i = 1; i < plugins.length; i++){
+                    var o1 = plugins[i-1].order;
+                    var o2 = plugins[i].order;
                     if(order === plugins[i-1].order || (order > plugins[i-1].order && order < plugins[i].order)){
                         plugins.splice(i, 0, plugin);
-                        break;
+                        // inserted, continue forEach loop
+                        return;
                     }
                 }
+                // was not inserted...
+                plugins.push(plugin);
             }
         });
 
@@ -120,6 +134,14 @@
             });
         }
         return o;
+    }
+
+    function toArray (object) {
+        if(!object){ return []; }
+        if(Array.isArray(object)){ return object; }
+        if(typeof object === 'string'){ return object.split(',').map(function(s){ return s.trim();})}
+        console.warn('unknown plugins type:', object);
+        return [];
     }
 
     if (typeof customLoader === 'function') {

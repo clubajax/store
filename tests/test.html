@@ -32,14 +32,26 @@
                 d2 = [{id:4,value:'d', type: 'beta', category: 'greek'},{id:5,value:'e', type: 'beta', category: 'greek'},{id:6,value:'f', type: 'alpha', category: 'latin'}],
                 d3 = [{name:'foo',value:'foo', type: 'alpha', category: 'greek'},{name:'bar',value:'bar', type: 'beta', selected: true, category: 'greek'},
                     {name:'zap',value:'zap', type: 'omega'},{name:'pew',value:'pew', type: 'gamma', category: 'latin'}],
-                d4 = [];
+                d4;
 
-            for(var i = 0; i <= 20; i++){
-                d4.push({
-                    id: i,
-                    value: i
-                });
+            function makeData () {
+                var a = 0, b = 0, i, category, type, items = [];
+                for(i = 0; i <= 20; i++) {
+                    category = b === 5 ? 'latin' : 'greek';
+                    type = a === 3 ? 'beta' : a === 4 ? 'gamma' : 'alpha';
+                    if(a === 5) { a = 0; }
+                    if(b === 5) { b = 0; }
+                    a++; b++;
+                    items.push({
+                        id: i,
+                        value: i,
+                        type: type,
+                        category: category
+                    });
+                }
+                return items;
             }
+            d4 = makeData();
 
             function xsuite() {}
             function xtest() {}
@@ -124,6 +136,47 @@
                         expect(values(r)).to.equal('0,1,2,3,4');
                         r = s.fetch({paginate: {start: 5, count: 5}});
                         expect(values(r)).to.equal('5,6,7,8,9');
+                    });
+                });
+
+                suite('misc', function () {
+                    test('it should filter, sort, and paginate', function () {
+                        var r, s = store({plugins: 'sort,filter,paginate'});
+                        s.set(d4);
+
+                        r = s.fetch({
+                            filter:{type:'alpha'},
+                            sort:{key: 'value', dir:'asc'},
+                            paginate: {start: 0, count: 5}
+                        });
+                        expect(values(r)).to.equal('20,17,16,15,12');
+                    });
+
+                    test('it should add plugins in the correct order', function () {
+                        var s, count = 1;
+                        store.addPlugin('a', function () {
+                            expect(count).to.equal(1);
+                            count++;
+                        }, 1);
+                        store.addPlugin('b', function () {
+                            expect(count).to.equal(3);
+                            count++;
+                        }, 3);
+                        store.addPlugin('c', function () {
+                            expect(count).to.equal(2);
+                            count++;
+                        }, 2);
+                        store.addPlugin('d', function () {
+                            expect(count).to.equal(5);
+                            count++;
+                        }, 5);
+                        store.addPlugin('e', function () {
+                            expect(count).to.equal(4);
+                            count++;
+                        }, 4);
+                        s = store({plugins: 'a,b,c,d,e'});
+                        s.set(d1);
+                        s.fetch({a:{},b:{},c:{},d:{},e:{}});
                     });
                 });
             });

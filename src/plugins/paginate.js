@@ -11,6 +11,6 @@
         return items;
     }
 
-    store.addPlugin('paginate', paginate, 40);
+    store.addPlugin('paginate', paginate, 30);
 
 }(window.store));
