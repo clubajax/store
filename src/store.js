@@ -41,7 +41,6 @@
                     }
                     var i, key = optionalIdentifier || options.identifier || defaults.identifier;
                     for (i = 0; i < this.items.length; i++) {
-                        //var p = this.items[i][key];
                         if (this.items[i][key] === value) {
                             return this.items[i];
                         }
@@ -64,10 +63,10 @@
                     //    sort: {
                     //
                     //    },
-                    //    segment: {
+                    //    paginate: {
                     //
                     //    },
-                    //    paginate: {
+                    //    segment: {
                     //
                     //    },
                     //    search:{
@@ -85,26 +84,6 @@
                 load: function (url) {
                     // memory store, fetch initial data
                     // need loaded, or is ready?
-                },
-
-                filter: function (items) {
-
-                },
-
-                sort: function () {
-
-                },
-
-                segment: function () {
-
-                },
-
-                paginate: function () {
-
-                },
-
-                search: function () {
-
                 }
             };
 

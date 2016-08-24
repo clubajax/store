@@ -6,6 +6,7 @@
     <script src="../src/store.js"></script>
     <script src="../src/plugins/filter.js"></script>
     <script src="../src/plugins/sort.js"></script>
+    <script src="../src/plugins/paginate.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mocha/2.5.3/mocha.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/chai/3.5.0/chai.min.js"></script>
     <style>
@@ -30,7 +31,15 @@
                 d1 = [{id:1,value:'a', type: 'alpha', category: 'greek'},{id:1,value:'b', type: 'alpha', category: 'latin'},{id:3,value:'c', type: 'beta', category: 'greek'}],
                 d2 = [{id:4,value:'d', type: 'beta', category: 'greek'},{id:5,value:'e', type: 'beta', category: 'greek'},{id:6,value:'f', type: 'alpha', category: 'latin'}],
                 d3 = [{name:'foo',value:'foo', type: 'alpha', category: 'greek'},{name:'bar',value:'bar', type: 'beta', selected: true, category: 'greek'},
-                    {name:'zap',value:'zap', type: 'omega'},{name:'pew',value:'pew', type: 'gamma', category: 'latin'}];
+                    {name:'zap',value:'zap', type: 'omega'},{name:'pew',value:'pew', type: 'gamma', category: 'latin'}],
+                d4 = [];
+
+            for(var i = 0; i <= 20; i++){
+                d4.push({
+                    id: i,
+                    value: i
+                });
+            }
 
             function xsuite() {}
             function xtest() {}
@@ -104,6 +113,17 @@
                         s.add(d1);
                         r = s.fetch({sort: {key: 'value', dir:'asc'}});
                         expect(values(r)).to.equal('c,b,a');
+                    });
+                });
+
+                suite('paginate', function () {
+                    test('it should paginate', function () {
+                        var r, s = store({plugins: ['paginate']});
+                        s.set(d4);
+                        r = s.fetch({paginate: {start: 0, count: 5}});
+                        expect(values(r)).to.equal('0,1,2,3,4');
+                        r = s.fetch({paginate: {start: 5, count: 5}});
+                        expect(values(r)).to.equal('5,6,7,8,9');
                     });
                 });
             });
