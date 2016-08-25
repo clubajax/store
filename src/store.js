@@ -155,4 +155,4 @@
         return store;
     }
 
-}());
+}(window));
