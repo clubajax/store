@@ -10,6 +10,8 @@
                 identifier: 'id'
             },
             plugins = [],
+            items,
+            lastParams = '',
             currentParams = {},
             dataStore = {
 
@@ -24,14 +26,12 @@
                     else {
                         this.items.push(items);
                     }
-                    this.update();
                 },
 
                 set: function (items) {
                     // sets all items - overwrites existing items, if any
                     this.orgItems = items;
                     this.items = items.concat([]);
-                    this.update();
                 },
 
                 get: function (value, optionalIdentifier) {
@@ -46,13 +46,6 @@
                         }
                     }
                     return null;
-                },
-
-                update: function () {
-                    // run through plugins to sort, paginate, etc
-                    // or sync with server
-                    //
-                    // or just mark dirty?
                 },
 
                 fetch: function (params) {
@@ -73,8 +66,14 @@
                     //
                     //    }
                     //};
+                    var i, strParams;
                     currentParams = mix(currentParams, params);
-                    var i, items = this.items;
+                    strParams = JSON.stringify(currentParams);
+                    if(items && strParams === lastParams){
+                        return items;
+                    }
+                    lastParams = strParams;
+                    items = this.items.concat([]);
                     for(i = 0; i < plugins.length; i++){
                         items = plugins[i](items, currentParams, this);
                     }
@@ -105,8 +104,6 @@
             }
             else{
                 for(i = 1; i < plugins.length; i++){
-                    var o1 = plugins[i-1].order;
-                    var o2 = plugins[i].order;
                     if(order === plugins[i-1].order || (order > plugins[i-1].order && order < plugins[i].order)){
                         plugins.splice(i, 0, plugin);
                         // inserted, continue forEach loop
@@ -116,6 +113,7 @@
                 // was not inserted...
                 plugins.push(plugin);
             }
+            dataStore.plugins = plugins;
         });
 
         return dataStore;
