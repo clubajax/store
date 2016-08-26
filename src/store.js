@@ -49,7 +49,21 @@
                 },
 
                 remove: function (itemsOrIdOrIds) {
+                    var
+                        i, k, items = this.items,
+                        key = options.identifier || defaults.identifier,
+                        arr = Array.isArray(itemsOrIdOrIds) ? itemsOrIdOrIds : [itemsOrIdOrIds],
+                        isId = typeof arr[0] === 'string' || typeof arr[0] === 'number';
 
+                    for(i = 0; i < arr.length; i++){
+                        for(k = items.length - 1; k >= 0; k--){
+                            if((isId && arr[i] === items[k][key]) || (arr[i] === items[k])){
+                                items.splice(k,1);
+                                k = items.length - 1;
+                                break;
+                            }
+                        }
+                    }
                 },
 
                 clear: function () {
