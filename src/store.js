@@ -82,12 +82,6 @@
                     //    },
                     //    paginate: {
                     //
-                    //    },
-                    //    segment: {
-                    //
-                    //    },
-                    //    search:{
-                    //
                     //    }
                     //};
                     var i, strParams;

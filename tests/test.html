@@ -63,7 +63,7 @@
             }
 
             suite('store', function () {
-                xsuite('get and set', function () {
+                suite('get and set', function () {
                     test('it should get and set', function () {
                         var s = store();
                         s.add(d1);
@@ -113,7 +113,7 @@
                         expect(s.items.length).to.equal(1);
                     });
                 });
-                xsuite('filter', function () {
+                suite('filter', function () {
                     test('it should filter on a set of params', function () {
                         var r, s = store({plugins:['filter']});
                         s.add(d1);
@@ -142,7 +142,7 @@
                     });
                 });
 
-                xsuite('sort', function () {
+                suite('sort', function () {
                     test('it should sort on a set of params', function () {
                         var r, s = store({plugins: ['sort']});
                         s.add(d1);
