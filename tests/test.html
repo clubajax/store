@@ -157,7 +157,7 @@
                     });
                 });
 
-                xsuite('paginate', function () {
+                suite('paginate', function () {
                     test('it should paginate', function () {
                         var r, s = store({plugins: ['paginate']});
                         s.set(d4);
@@ -168,7 +168,7 @@
                     });
                 });
 
-                xsuite('misc', function () {
+                suite('misc', function () {
                     test('it should filter, sort, and paginate', function () {
                         var r, s = store({plugins: 'sort,filter,paginate'});
                         s.set(d4);

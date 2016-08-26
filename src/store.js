@@ -5,7 +5,6 @@
     function store(options) {
         options = options || {};
         var
-            // can't be private - plugins need access
             defaults = {
                 identifier: 'id'
             },
@@ -49,6 +48,7 @@
                 },
 
                 remove: function (itemsOrIdOrIds) {
+                    // Removes an item or items. Expects: an ID, an item, an array of IDs, or an array of items.
                     var
                         i, k, items = this.items,
                         key = options.identifier || defaults.identifier,
@@ -67,6 +67,7 @@
                 },
 
                 clear: function () {
+                    // resets internally.
                     items = this.items = [];
                     lastParams = '';
                     currentParams = {};
