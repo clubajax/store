@@ -30,7 +30,7 @@
 
                 set: function (items) {
                     // sets all items - overwrites existing items, if any
-                    this.orgItems = items;
+                    this.clear();
                     this.items = items.concat([]);
                 },
 
@@ -46,6 +46,16 @@
                         }
                     }
                     return null;
+                },
+
+                remove: function (itemsOrIdOrIds) {
+
+                },
+
+                clear: function () {
+                    items = this.items = [];
+                    lastParams = '';
+                    currentParams = {};
                 },
 
                 fetch: function (params) {
