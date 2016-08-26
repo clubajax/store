@@ -49,9 +49,27 @@ To create a store:
  
 ### fetch()
 
-Get items based on passed criteria. Without passing params, it will return all items. If there are no plugins, it will return all items.
+Get items based on passed criteria. Without passing params, it will return all items. If there are no plugins, it will 
+return all items.
 
-The params are objects within objects. 
+The params are objects within objects.
+
+    dataStore.fetch({
+        paginate:{
+            start: 5,
+            count: 5
+        }
+    });
+        
+The params are cached, so if you fetch a second time without any parameters, the same results will return. In fact, the 
+plugins won't be called, because if the params don't change, the previous set of items will be returned. To clear a param,
+null should be passed. The following example clear all previous params and will return the original set of items:
+
+    {
+        filter:null,
+        sort:null,
+        paginate: null
+    }
 
 #### sort
 
