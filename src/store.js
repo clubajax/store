@@ -121,7 +121,12 @@
                     plugins.unshift(plugin);
                 }
             }
+            else if(plugins[0].order > order){
+                // is first
+                plugins.unshift(plugin);
+            }
             else{
+                // is between first and last
                 for(i = 1; i < plugins.length; i++){
                     if(order === plugins[i-1].order || (order > plugins[i-1].order && order < plugins[i].order)){
                         plugins.splice(i, 0, plugin);
