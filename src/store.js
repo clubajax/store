@@ -109,7 +109,13 @@
             var
                 i,
                 plugin = store.plugins[pluginName],
-                order = plugin.order;
+                order;
+
+            if(!plugin){
+                throw Error('plugin not found: ' + pluginName);
+            }
+
+            order = plugin.order;
 
             if(!plugins.length) {
                 plugins.push(plugin);
