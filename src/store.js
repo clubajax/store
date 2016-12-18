@@ -85,6 +85,7 @@
                     //
                     //    }
                     //};
+                    if(!this.items){ return []; }
                     var i, strParams;
                     currentParams = mix(currentParams, params);
                     strParams = JSON.stringify(currentParams);
