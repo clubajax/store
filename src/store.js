@@ -166,17 +166,6 @@
         return [];
     }
 
-    if (typeof customLoader === 'function') {
-        customLoader(store, 'store');
-    }
-    else if (typeof window !== 'undefined') {
-        window.store = store;
-    }
-    else if (typeof module !== 'undefined') {
-        module.exports = store;
-    }
-    else {
-        return store;
-    }
+    window.store = store;
 
 }(window));

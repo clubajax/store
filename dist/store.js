@@ -7,7 +7,6 @@ define([], function () {
     function store(options) {
         options = options || {};
         var
-            // can't be private - plugins need access
             defaults = {
                 identifier: 'id'
             },
@@ -32,7 +31,7 @@ define([], function () {
 
                 set: function (items) {
                     // sets all items - overwrites existing items, if any
-                    this.orgItems = items;
+                    this.clear();
                     this.items = items.concat([]);
                 },
 
@@ -50,6 +49,32 @@ define([], function () {
                     return null;
                 },
 
+                remove: function (itemsOrIdOrIds) {
+                    // Removes an item or items. Expects: an ID, an item, an array of IDs, or an array of items.
+                    var
+                        i, k, items = this.items,
+                        key = options.identifier || defaults.identifier,
+                        arr = Array.isArray(itemsOrIdOrIds) ? itemsOrIdOrIds : [itemsOrIdOrIds],
+                        isId = typeof arr[0] === 'string' || typeof arr[0] === 'number';
+
+                    for(i = 0; i < arr.length; i++){
+                        for(k = items.length - 1; k >= 0; k--){
+                            if((isId && arr[i] === items[k][key]) || (arr[i] === items[k])){
+                                items.splice(k,1);
+                                k = items.length - 1;
+                                break;
+                            }
+                        }
+                    }
+                },
+
+                clear: function () {
+                    // resets internally.
+                    items = this.items = [];
+                    lastParams = '';
+                    currentParams = {};
+                },
+
                 fetch: function (params) {
                     //this.params = {
                     //    filter:{
@@ -59,12 +84,6 @@ define([], function () {
                     //
                     //    },
                     //    paginate: {
-                    //
-                    //    },
-                    //    segment: {
-                    //
-                    //    },
-                    //    search:{
                     //
                     //    }
                     //};
@@ -104,7 +123,12 @@ define([], function () {
                     plugins.unshift(plugin);
                 }
             }
+            else if(plugins[0].order > order){
+                // is first
+                plugins.unshift(plugin);
+            }
             else{
+                // is between first and last
                 for(i = 1; i < plugins.length; i++){
                     if(order === plugins[i-1].order || (order > plugins[i-1].order && order < plugins[i].order)){
                         plugins.splice(i, 0, plugin);
@@ -144,18 +168,7 @@ define([], function () {
         return [];
     }
 
-    if (typeof customLoader === 'function') {
-        customLoader(store, 'store');
-    }
-    else if (typeof window !== 'undefined') {
-        window.store = store;
-    }
-    else if (typeof module !== 'undefined') {
-        module.exports = store;
-    }
-    else {
-        return store;
-    }
+    
 
 
 
@@ -244,6 +257,19 @@ define([], function () {
     }
 
     store.addPlugin('sort', sort, 20);
+
+        if (typeof customLoader === 'function') {
+            customLoader(store, 'store');
+        }
+        else if(typeof define === 'function' && define.amd){
+            return store;
+        }
+        else if (typeof module !== 'undefined') {
+            module.exports = store;
+        }
+        else if (typeof window !== 'undefined') {
+            window.store = store;
+        }
 
     });
 }(

@@ -16,6 +16,7 @@ function stripIIFE (file, index) {
     file = file.substring(0, end);
     file = file.substring(beg);
     file = file.substring(file.indexOf('\n'));
+    file = file.replace('window.store = store;', '');
     return file;
 }
 fs.readdirSync(dir).forEach(function(fileName) {
@@ -40,5 +41,4 @@ try {
 }
 fs.writeFileSync('dist/store.js', final);
 
-//var test = fs.readFileSync(dir + '/fade.js').toString();
-//console.log(stripIIFE(test));
+console.log('code compilation successful.');
