@@ -11,7 +11,7 @@ define([], function () {
                 identifier: 'id'
             },
             plugins = [],
-            items,
+            //items,
             lastParams = '',
             currentParams = {},
             dataStore = {
@@ -70,7 +70,7 @@ define([], function () {
 
                 clear: function () {
                     // resets internally.
-                    items = this.items = [];
+                    this.items = [];
                     lastParams = '';
                     currentParams = {};
                 },
@@ -87,14 +87,17 @@ define([], function () {
                     //
                     //    }
                     //};
-                    var i, strParams;
+                    if(!this.items){ return []; }
+                    var i, strParams,
+
+                    items = this.items.concat([]);
+
                     currentParams = mix(currentParams, params);
                     strParams = JSON.stringify(currentParams);
                     if(items && strParams === lastParams){
                         return items;
                     }
                     lastParams = strParams;
-                    items = this.items.concat([]);
                     for(i = 0; i < plugins.length; i++){
                         items = plugins[i](items, currentParams, this);
                     }
