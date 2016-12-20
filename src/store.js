@@ -84,7 +84,10 @@
                 currentParams = {};
             },
 
-            fetch: function (params) {
+            fetch: function () {
+                console.error('please use query');
+            },
+            query: function (params) {
                 //this.params = {
                 //    filter:{
                 //

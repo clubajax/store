@@ -31,13 +31,13 @@
                 expect = chai.expect,
                 d1 = [
                     {id:1,value:'a', type: 'alpha', category: 'greek'},
-                    {id:1,value:'b', type: 'alpha', category: 'latin'},
+                    {id:2,value:'b', type: 'alpha', category: 'latin'},
                     {id:3,value:'c', type: 'beta', category: 'greek', selected: true}
                 ],
                 d2 = [
                     {id:4,value:'d', type: 'beta', category: 'greek'},
                     {id:5,value:'e', type: 'beta', category: 'greek'},
-                    {id:6,value:'f', type: 'alpha', category: 'latin'}
+                    {id:6,value:'f', type: 'alpha', category: 'latin', selected: true}
                 ],
                 d3 = [
                     {name:'foo',value:'foo', type: 'alpha', category: 'greek'},
@@ -71,8 +71,13 @@
 
             function values (items) {
                 return items.map(function (item) {
-                    return item.value
+                    return item.value;
                 }).join(',');
+            }
+            function ids (items) {
+                return items.map(function (item) {
+                    return item.id;
+                }).sort().join(',');
             }
 
             suite('store', function () {
@@ -83,7 +88,7 @@
                         expect(s.get()).to.equal(null);
                         expect(s.get(1).value).to.equal('a');
                         s.add(d2);
-                        expect(s.fetch().length).to.equal(6);
+                        expect(s.query().length).to.equal(6);
                     });
                     test('it should handle items with a `name` identifier', function () {
                         var s = store({identifier: 'name'});
@@ -96,6 +101,7 @@
                         expect(s.get(true, 'selected').value).to.equal('bar');
                     });
                 });
+
                 xsuite('remove', function () {
                     test('it should remove an item', function () {
                         var s = store();
@@ -126,12 +132,13 @@
                         expect(s.items.length).to.equal(1);
                     });
                 });
+
                 xsuite('filter', function () {
                     test('it should filter on a set of params', function () {
                         var r, s = store({plugins:['filter', 'selection']});
                         console.log('ADD...');
                         s.add(d1);
-                        r = s.fetch({filter:{type:'alpha'}});
+                        r = s.query({filter:{type:'alpha'}});
                         expect(values(r)).to.equal('a,b');
                     });
                     test('it should filter on OR params', function () {
@@ -139,19 +146,19 @@
                         s.add(d1);
                         s.add(d2);
                         s.add(d3);
-                        r = s.fetch({filter:{type:'alpha||omega'}});
+                        r = s.query({filter:{type:'alpha||omega'}});
                         expect(values(r)).to.equal('a,b,f,foo,zap');
                     });
                     test('it should filter on AND params', function () {
                         var r, s = store({plugins:['filter']});
                         s.add(d1);
-                        r = s.fetch({filter:{type:'alpha',category:'latin'}});
+                        r = s.query({filter:{type:'alpha',category:'latin'}});
                         expect(values(r)).to.equal('b');
                     });
                     test('it should filter on AND and OR params', function () {
                         var r, s = store({plugins:['filter']});
                         s.add(d1);
-                        r = s.fetch({filter:{type:'alpha||beta',category:'greek'}});
+                        r = s.query({filter:{type:'alpha||beta',category:'greek'}});
                         expect(values(r)).to.equal('a,c');
                     });
                 });
@@ -160,13 +167,13 @@
                     test('it should sort on a set of params', function () {
                         var r, s = store({plugins: ['sort']});
                         s.add(d1);
-                        r = s.fetch({sort: {key: 'value'}});
+                        r = s.query({sort: {key: 'value'}});
                         expect(values(r)).to.equal('a,b,c');
                     });
                     test('it should sort `asc` on a set of params', function () {
                         var r, s = store({plugins: ['sort']});
                         s.add(d1);
-                        r = s.fetch({sort: {key: 'value', dir:'asc'}});
+                        r = s.query({sort: {key: 'value', dir:'asc'}});
                         expect(values(r)).to.equal('c,b,a');
                     });
                 });
@@ -175,9 +182,9 @@
                     test('it should paginate', function () {
                         var r, s = store({plugins: ['paginate']});
                         s.set(d4);
-                        r = s.fetch({paginate: {start: 0, count: 5}});
+                        r = s.query({paginate: {start: 0, count: 5}});
                         expect(values(r)).to.equal('0,1,2,3,4');
-                        r = s.fetch({paginate: {start: 5, count: 5}});
+                        r = s.query({paginate: {start: 5, count: 5}});
                         expect(values(r)).to.equal('5,6,7,8,9');
                     });
                 });
@@ -187,7 +194,7 @@
                         var r, s = store({plugins: 'sort,filter,paginate'});
                         s.set(d4);
 
-                        r = s.fetch({
+                        r = s.query({
                             filter:{type:'alpha'},
                             sort:{key: 'value', dir:'asc'},
                             paginate: {start: 0, count: 5}
@@ -219,7 +226,7 @@
                         }, 4);
                         s = store({plugins: 'a,b,c,d,e'});
                         s.set(d1);
-                        s.fetch({a:{},b:{},c:{},d:{},e:{}});
+                        s.query({a:{},b:{},c:{},d:{},e:{}});
                     });
 
                     test('it should not run through the plugins if the params do not change', function () {
@@ -243,13 +250,13 @@
                             count++;
                             return _paginate(items, params, store);
                         };
-                        r = s.fetch({
+                        r = s.query({
                             filter:{type:'alpha'},
                             sort:{key: 'value', dir:'asc'},
                             paginate: {start: 0, count: 5}
                         });
                         expect(values(r)).to.equal('20,17,16,15,12');
-                        r = s.fetch({
+                        r = s.query({
                             filter:{type:'alpha'},
                             sort:{key: 'value', dir:'asc'},
                             paginate: {start: 0, count: 5}
@@ -259,12 +266,107 @@
                 });
 
                 suite('selection', function () {
-                    test('it should get selected from items', function () {
+                    test('it should get selected from items with `add`', function () {
                         var r, s = store({plugins: ['selection']});
-                        console.log('START');
                         s.add(d1);
                         r = s.selection;
                         expect(r.id).to.equal(3);
+                    });
+
+                    test('it should get selected from items with `set`', function () {
+                        var r, s = store({plugins: ['selection']});
+                        s.set(d1);
+                        r = s.selection;
+                        expect(r.id).to.equal(3);
+                    });
+
+                    test('it should return null when removing selected', function () {
+                        var r, s = store({plugins: ['selection']});
+                        s.set(d1);
+                        s.remove(3);
+                        r = s.selection;
+                        expect(r).to.equal(null);
+                    });
+
+                    test('it should return null after `clear`', function () {
+                        var r, s = store({plugins: ['selection']});
+                        s.set(d1);
+                        s.clear();
+                        r = s.selection;
+                        expect(r).to.equal(null);
+                    });
+
+                    test('it should set selected with an item', function () {
+                        var r, s = store({plugins: ['selection']});
+                        s.set(d1);
+                        s.selection = d1[1];
+                        r = s.selection;
+                        expect(r.id).to.equal(2);
+                    });
+
+                    test('it should set selected with an id', function () {
+                        var r, s = store({plugins: ['selection']});
+                        s.set(d1);
+                        s.selection = d1[1].id;
+                        r = s.selection;
+                        expect(r.id).to.equal(2);
+                    });
+
+                    test('it should get selected from additional `add`', function () {
+                        var r, s = store({plugins: ['selection']});
+                        s.set(d1);
+                        s.add(d2);
+                        r = s.selection;
+                        expect(r.id).to.equal(6);
+                    });
+
+                    test('it should get multiple selected', function () {
+                        var r, s = store({plugins: ['selection'], selection:{multiple:true}});
+                        s.set(d1);
+                        s.add(d2);
+                        
+                        r = s.selection;
+                        expect(Array.isArray(r)).to.equal(true);
+                        expect(r[0].id).to.equal(3);
+                        expect(r[1].id).to.equal(6);
+                    });
+
+                    test('it should replace a multiple selection', function () {
+                        // make this an option?
+                        var r, s = store({plugins: ['selection'], selection:{multiple:true}});
+                        s.set(d1);
+                        s.add(d2);
+                        s.selection = [2,4];
+
+                        r = s.selection;
+                        expect(Array.isArray(r)).to.equal(true);
+                        expect(ids(r)).to.equal('2,4');
+                    });
+
+                    test('it should add to a multiple selection', function () {
+                        // make this an option?
+                        var r, s = store({plugins: ['selection'], selection:{multiple:true, additive:true}});
+                        s.set(d1);
+                        s.add(d2);
+                        s.selection = [2,4];
+
+                        r = s.selection;
+                        expect(Array.isArray(r)).to.equal(true);
+                        expect(ids(r)).to.equal('2,3,4,6');
+                    });
+
+                    test('it should remove items from the multiple selection', function () {
+                        // make this an option?
+                        var r, s = store({plugins: ['selection'], selection:{multiple:true, additive:true}});
+                        s.set(d1);
+                        s.add(d2);
+                        s.selection = [2,4];
+                        s.remove([2,3]);
+
+                        r = s.selection;
+                        expect(Array.isArray(r)).to.equal(true);
+                        expect(r.length).to.equal(2);
+                        expect(ids(r)).to.equal('4,6');
                     });
                 });
             });
