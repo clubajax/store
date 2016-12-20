@@ -52,11 +52,12 @@
         }
 
         function select (item) {
-            console.log('   sel', item);
             // handle item property?
             if(multiple){
                 if(Array.isArray(selected)){
-                    selected.push(item);
+                    if(selected.indexOf(item) === -1) {
+                        selected.push(item);
+                    }
                 }else{
                     selected = [item];
                 }
@@ -69,7 +70,6 @@
         function unselect (item) {
             // handle item property?
             if(multiple){
-                console.log('UNS', item);
                 selected = selected.filter(function (m) {
                     return m !== item;
                 });
@@ -86,12 +86,9 @@
         });
         before(dataStore, 'remove', function (itemOrIdOrItemsOrIds) {
             var arr = Array.isArray(itemOrIdOrItemsOrIds) ? itemOrIdOrItemsOrIds : [itemOrIdOrItemsOrIds];
-            console.log(' - selected', selected);
             arr.forEach(function (itemOrId) {
                 var item = typeof itemOrId === 'object' ? itemOrId : dataStore.get(itemOrId);
-                console.log('rem', item);
                 if(isSelected(item)){
-                    console.log('IS_SEL');
                     unselect(item);
                 }
             });
@@ -102,8 +99,11 @@
 
         Object.defineProperty(dataStore, 'selection', {
             get: function () {
-                // TODO: how to sort results?
+                if(multiple){
+                    return dataStore.query(0, selected);
+                }
                 return selected;
+
             },
             set: function (itemOrId) {
                 function setter (itemOrId) {

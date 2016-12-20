@@ -4,10 +4,16 @@
     // sort:
     // {key:'value', dir: 'asc'} // dir defaults to desc
 
+    var example = "store.query({sort:{dir:'asc', key:'id'}});";
+
     function sort (items, params, store) {
         var key, result;
         if(!params.sort){
             return items;
+        }
+
+        if(params.sort.asc || !params.sort.key){
+            console.error('Missing sort params. Did you mean:', example);
         }
         Object.keys(params.sort).forEach(function (k) {
             if(k !== 'dir') {

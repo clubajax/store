@@ -87,7 +87,7 @@
             fetch: function () {
                 console.error('please use query');
             },
-            query: function (params) {
+            query: function (params, altItems) {
                 //this.params = {
                 //    filter:{
                 //
@@ -99,18 +99,22 @@
                 //
                 //    }
                 //};
-                if (!this.items) {
+                if (!this.items && !altItems) {
                     return [];
                 }
 
-                var i, strParams, items = this.items.concat([]);
+                var i,
+                    strParams,
+                    items = altItems ? altItems.concat([]) : this.items.concat([]);
 
                 currentParams = mix(currentParams, params);
                 strParams = JSON.stringify(currentParams);
-                if (items && strParams === lastParams) {
+                if (items && !altItems && strParams === lastParams) {
                     return items;
                 }
-                lastParams = strParams;
+                if(!altItems) {
+                    lastParams = strParams;
+                }
                 for (i = 0; i < plugins.length; i++) {
                     items = plugins[i](items, currentParams, this);
                 }
