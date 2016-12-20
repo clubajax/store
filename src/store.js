@@ -9,104 +9,118 @@
                 identifier: 'id'
             },
             plugins = [],
-            //items,
             lastParams = '',
             currentParams = {},
-            dataStore = {
+            dataStore;
 
-                add: function (items) {
-                    // add item or items to existing
-                    if (!this.items) {
-                        return this.set(items);
-                    }
-                    if (Array.isArray(items)) {
-                        this.items = this.items.concat(items);
-                    }
-                    else {
-                        this.items.push(items);
-                    }
-                },
+        options.identifier = options.identifier || defaults.identifier;
 
-                set: function (items) {
-                    // sets all items - overwrites existing items, if any
-                    this.clear();
-                    this.items = items.concat([]);
-                },
+        dataStore = {
 
-                get: function (value, optionalIdentifier) {
-                    // always returns one item or null
-                    if (!value || !this.items) {
-                        return null;
-                    }
-                    var i, key = optionalIdentifier || options.identifier || defaults.identifier;
-                    for (i = 0; i < this.items.length; i++) {
-                        if (this.items[i][key] === value) {
-                            return this.items[i];
-                        }
-                    }
+            get: function (value, optionalIdentifier) {
+                // always returns one item or null
+                if (!value || !this.items) {
                     return null;
-                },
+                }
+                var i, key = optionalIdentifier || options.identifier;
+                for (i = 0; i < this.items.length; i++) {
+                    if (this.items[i][key] === value) {
+                        return this.items[i];
+                    }
+                }
+                return null;
+            },
 
-                remove: function (itemsOrIdOrIds) {
-                    // Removes an item or items. Expects: an ID, an item, an array of IDs, or an array of items.
-                    var
-                        i, k, items = this.items,
-                        key = options.identifier || defaults.identifier,
-                        arr = Array.isArray(itemsOrIdOrIds) ? itemsOrIdOrIds : [itemsOrIdOrIds],
-                        isId = typeof arr[0] === 'string' || typeof arr[0] === 'number';
+            set: function (items) {
+                // sets all items - overwrites existing items, if any
+                this.clear();
+                if(!items){
+                    this.items = [];
+                }
+                else if(!Array.isArray(items)){
+                    this.items = [items];
+                }
+                else {
+                    this.items = items.concat([]);
+                }
+            },
 
-                    for(i = 0; i < arr.length; i++){
-                        for(k = items.length - 1; k >= 0; k--){
-                            if((isId && arr[i] === items[k][key]) || (arr[i] === items[k])){
-                                items.splice(k,1);
-                                k = items.length - 1;
-                                break;
-                            }
+            add: function (itemOrItems) {
+                // add item or items to existing
+                if (!this.items) {
+                    return this.set(itemOrItems);
+                }
+                if (Array.isArray(itemOrItems)) {
+                    this.items = this.items.concat(itemOrItems);
+                }
+                else {
+                    this.items.push(itemOrItems);
+                }
+            },
+
+            remove: function (itemsOrIdOrIds) {
+                // Removes an item or items. Expects: an ID, an item, an array of IDs, or an array of items.
+                var
+                    i, k, items = this.items,
+                    key = options.identifier,
+                    arr = Array.isArray(itemsOrIdOrIds) ? itemsOrIdOrIds : [itemsOrIdOrIds],
+                    isId = typeof arr[0] === 'string' || typeof arr[0] === 'number';
+
+                for (i = 0; i < arr.length; i++) {
+                    for (k = items.length - 1; k >= 0; k--) {
+                        if ((isId && arr[i] === items[k][key]) || (arr[i] === items[k])) {
+                            items.splice(k, 1);
+                            k = items.length - 1;
+                            break;
                         }
                     }
-                },
-
-                clear: function () {
-                    // resets internally.
-                    this.items = [];
-                    lastParams = '';
-                    currentParams = {};
-                },
-
-                fetch: function (params) {
-                    //this.params = {
-                    //    filter:{
-                    //
-                    //    },
-                    //    sort: {
-                    //
-                    //    },
-                    //    paginate: {
-                    //
-                    //    }
-                    //};
-                    if(!this.items){ return []; }
-                    var i, strParams,
-
-                    items = this.items.concat([]);
-
-                    currentParams = mix(currentParams, params);
-                    strParams = JSON.stringify(currentParams);
-                    if(items && strParams === lastParams){
-                        return items;
-                    }
-                    lastParams = strParams;
-                    for(i = 0; i < plugins.length; i++){
-                        items = plugins[i](items, currentParams, this);
-                    }
-                    return items;
-                },
-
-                load: function (url) {
-                    // memory store, fetch initial data
-                    // need loaded, or is ready?
                 }
-            };
+            },
+
+            clear: function () {
+                // resets internally.
+                this.items = [];
+                lastParams = '';
+                currentParams = {};
+            },
+
+            fetch: function (params) {
+                //this.params = {
+                //    filter:{
+                //
+                //    },
+                //    sort: {
+                //
+                //    },
+                //    paginate: {
+                //
+                //    }
+                //};
+                if (!this.items) {
+                    return [];
+                }
+
+                var i, strParams, items = this.items.concat([]);
+
+                currentParams = mix(currentParams, params);
+                strParams = JSON.stringify(currentParams);
+                if (items && strParams === lastParams) {
+                    return items;
+                }
+                lastParams = strParams;
+                for (i = 0; i < plugins.length; i++) {
+                    items = plugins[i](items, currentParams, this);
+                }
+                return items;
+            },
+
+            load: function (url) {
+                // memory store, fetch initial data
+                // need loaded, or is ready?
+            }
+        };
+
+        dataStore.options = options; // for plugins access
 
         toArray(options.plugins).forEach(function (pluginName) {
             var
@@ -114,30 +128,36 @@
                 plugin = store.plugins[pluginName],
                 order;
 
-            if(!plugin){
+            if (!plugin) {
                 throw Error('plugin not found: ' + pluginName);
             }
 
             order = plugin.order;
 
-            if(!plugins.length) {
+            if (order === 'mixin') {
+                plugin(dataStore);
+                return;
+            }
+
+            if (!plugins.length) {
                 plugins.push(plugin);
             }
-            else if(plugins.length === 1){
-                if(plugins[0].order <= order){
+            else if (plugins.length === 1) {
+                if (plugins[0].order <= order) {
                     plugins.push(plugin);
-                }else{
+                }
+                else {
                     plugins.unshift(plugin);
                 }
             }
-            else if(plugins[0].order > order){
+            else if (plugins[0].order > order) {
                 // is first
                 plugins.unshift(plugin);
             }
-            else{
+            else {
                 // is between first and last
-                for(i = 1; i < plugins.length; i++){
-                    if(order === plugins[i-1].order || (order > plugins[i-1].order && order < plugins[i].order)){
+                for (i = 1; i < plugins.length; i++) {
+                    if (order === plugins[i - 1].order || (order > plugins[i - 1].order && order < plugins[i].order)) {
                         plugins.splice(i, 0, plugin);
                         // inserted, continue forEach loop
                         return;
@@ -158,8 +178,8 @@
         store.plugins[type] = plugin;
     };
 
-    function mix (o, p) {
-        if(p) {
+    function mix(o, p) {
+        if (p) {
             Object.keys(p).forEach(function (key) {
                 o[key] = p[key];
             });
@@ -167,10 +187,18 @@
         return o;
     }
 
-    function toArray (object) {
-        if(!object){ return []; }
-        if(Array.isArray(object)){ return object; }
-        if(typeof object === 'string'){ return object.split(',').map(function(s){ return s.trim();})}
+    function toArray(object) {
+        if (!object) {
+            return [];
+        }
+        if (Array.isArray(object)) {
+            return object;
+        }
+        if (typeof object === 'string') {
+            return object.split(',').map(function (s) {
+                return s.trim();
+            })
+        }
         console.warn('unknown plugins type:', object);
         return [];
     }

@@ -7,6 +7,7 @@
     <script src="../src/filter.js"></script>
     <script src="../src/sort.js"></script>
     <script src="../src/paginate.js"></script>
+    <script src="../src/selection.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mocha/2.5.3/mocha.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/chai/3.5.0/chai.min.js"></script>
     <style>
@@ -28,10 +29,22 @@
             var suite = window.suite,
                 test = window.test,
                 expect = chai.expect,
-                d1 = [{id:1,value:'a', type: 'alpha', category: 'greek'},{id:1,value:'b', type: 'alpha', category: 'latin'},{id:3,value:'c', type: 'beta', category: 'greek'}],
-                d2 = [{id:4,value:'d', type: 'beta', category: 'greek'},{id:5,value:'e', type: 'beta', category: 'greek'},{id:6,value:'f', type: 'alpha', category: 'latin'}],
-                d3 = [{name:'foo',value:'foo', type: 'alpha', category: 'greek'},{name:'bar',value:'bar', type: 'beta', selected: true, category: 'greek'},
-                    {name:'zap',value:'zap', type: 'omega'},{name:'pew',value:'pew', type: 'gamma', category: 'latin'}],
+                d1 = [
+                    {id:1,value:'a', type: 'alpha', category: 'greek'},
+                    {id:1,value:'b', type: 'alpha', category: 'latin'},
+                    {id:3,value:'c', type: 'beta', category: 'greek', selected: true}
+                ],
+                d2 = [
+                    {id:4,value:'d', type: 'beta', category: 'greek'},
+                    {id:5,value:'e', type: 'beta', category: 'greek'},
+                    {id:6,value:'f', type: 'alpha', category: 'latin'}
+                ],
+                d3 = [
+                    {name:'foo',value:'foo', type: 'alpha', category: 'greek'},
+                    {name:'bar',value:'bar', type: 'beta', selected: true, category: 'greek'},
+                    {name:'zap',value:'zap', type: 'omega'},
+                    {name:'pew',value:'pew', type: 'gamma', category: 'latin'}
+                ],
                 d4;
 
             function makeData () {
@@ -63,7 +76,7 @@
             }
 
             suite('store', function () {
-                suite('get and set', function () {
+                xsuite('get and set', function () {
                     test('it should get and set', function () {
                         var s = store();
                         s.add(d1);
@@ -83,7 +96,7 @@
                         expect(s.get(true, 'selected').value).to.equal('bar');
                     });
                 });
-                suite('remove', function () {
+                xsuite('remove', function () {
                     test('it should remove an item', function () {
                         var s = store();
                         s.add(d1);
@@ -113,9 +126,10 @@
                         expect(s.items.length).to.equal(1);
                     });
                 });
-                suite('filter', function () {
+                xsuite('filter', function () {
                     test('it should filter on a set of params', function () {
-                        var r, s = store({plugins:['filter']});
+                        var r, s = store({plugins:['filter', 'selection']});
+                        console.log('ADD...');
                         s.add(d1);
                         r = s.fetch({filter:{type:'alpha'}});
                         expect(values(r)).to.equal('a,b');
@@ -142,7 +156,7 @@
                     });
                 });
 
-                suite('sort', function () {
+                xsuite('sort', function () {
                     test('it should sort on a set of params', function () {
                         var r, s = store({plugins: ['sort']});
                         s.add(d1);
@@ -157,7 +171,7 @@
                     });
                 });
 
-                suite('paginate', function () {
+                xsuite('paginate', function () {
                     test('it should paginate', function () {
                         var r, s = store({plugins: ['paginate']});
                         s.set(d4);
@@ -168,7 +182,7 @@
                     });
                 });
 
-                suite('misc', function () {
+                xsuite('misc', function () {
                     test('it should filter, sort, and paginate', function () {
                         var r, s = store({plugins: 'sort,filter,paginate'});
                         s.set(d4);
@@ -213,7 +227,6 @@
                             _sort, _filter, _paginate, count = 0,
                             r, s = store({plugins: 'sort,filter,paginate'});
                         s.set(d4);
-                        console.log('s.plugins', s.plugins);
 
                         _sort = s.plugins[0];
                         s.plugins[0] = function (items, params, store) {
@@ -242,6 +255,16 @@
                             paginate: {start: 0, count: 5}
                         });
                         expect(count).to.equal(3);
+                    });
+                });
+
+                suite('selection', function () {
+                    test('it should get selected from items', function () {
+                        var r, s = store({plugins: ['selection']});
+                        console.log('START');
+                        s.add(d1);
+                        r = s.selection;
+                        expect(r.id).to.equal(3);
                     });
                 });
             });
