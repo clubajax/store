@@ -53,7 +53,7 @@
 
         function select (item) {
             // handle item property?
-            item.selected = true;
+            //item.selected = true;
             if(multiple){
                 if(Array.isArray(selected)){
                     if(selected.indexOf(item) === -1) {
@@ -63,16 +63,16 @@
                     selected = [item];
                 }
             }else{
-                if(selected){
-                    selected.selected = false;
-                }
+                //if(selected){
+                //    selected.selected = false;
+                //}
                 selected = item;
             }
         }
 
         function unselect (item) {
             // handle item property?
-            item.selected = false;
+            //item.selected = false;
             if(multiple){
                 selected = selected.filter(function (m) {
                     return m !== item;

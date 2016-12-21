@@ -23,8 +23,9 @@
                     return null;
                 }
                 var i, key = optionalIdentifier || options.identifier;
+                value += '';
                 for (i = 0; i < this.items.length; i++) {
-                    if (this.items[i][key] === value) {
+                    if (this.items[i][key]+'' === value) {
                         return this.items[i];
                     }
                 }
