@@ -25,8 +25,9 @@ define([], function () {
                     return null;
                 }
                 var i, key = optionalIdentifier || options.identifier;
+                value += '';
                 for (i = 0; i < this.items.length; i++) {
-                    if (this.items[i][key] === value) {
+                    if (this.items[i][key]+'' === value) {
                         return this.items[i];
                     }
                 }
@@ -327,6 +328,7 @@ define([], function () {
 
         function select (item) {
             // handle item property?
+            //item.selected = true;
             if(multiple){
                 if(Array.isArray(selected)){
                     if(selected.indexOf(item) === -1) {
@@ -336,13 +338,16 @@ define([], function () {
                     selected = [item];
                 }
             }else{
+                //if(selected){
+                //    selected.selected = false;
+                //}
                 selected = item;
             }
-
         }
 
         function unselect (item) {
             // handle item property?
+            //item.selected = false;
             if(multiple){
                 selected = selected.filter(function (m) {
                     return m !== item;
