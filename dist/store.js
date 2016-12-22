@@ -468,7 +468,7 @@ define([], function () {
                     return dataStore.query(0, selected);
                 }
                 // TODO, this may need to be queried as well
-                return [selected];
+                return multiple ? [selected] : selected;
 
             },
             set: function (itemOrId) {

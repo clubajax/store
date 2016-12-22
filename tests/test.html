@@ -100,6 +100,9 @@
                 }).join(',');
             }
             function ids (items, sorted) {
+                if(!Array.isArray(items)){
+                    return items.id + '';
+                }
                 var a = items.map(function (item) {
                     return item.id;
                 });
@@ -314,14 +317,14 @@
                     test('it should set selection from items with `add`', function () {
                         var r, s = store({plugins: ['selection']});
                         s.add(cp(d1));
-                        r = s.selection[0];
+                        r = s.selection;
                         expect(r.id).to.equal(3);
                     });
 
                     test('it should set selection from items with `set`', function () {
                         var r, s = store({plugins: ['selection']});
                         s.set(cp(d1));
-                        r = s.selection[0];
+                        r = s.selection;
                         expect(r.id).to.equal(3);
                     });
 
@@ -345,7 +348,7 @@
                         var r, s = store({plugins: ['selection']});
                         s.set(cp(d1));
                         s.selection = d1[1];
-                        r = s.selection[0];
+                        r = s.selection;
                         expect(r.id).to.equal(2);
                     });
 
@@ -353,7 +356,7 @@
                         var r, s = store({plugins: ['selection']});
                         s.set(cp(d1));
                         s.selection = d1[1].id;
-                        r = s.selection[0];
+                        r = s.selection;
                         expect(r.id).to.equal(2);
                     });
 
