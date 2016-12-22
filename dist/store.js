@@ -13,6 +13,7 @@ define([], function () {
             plugins = [],
             lastParams = '',
             currentParams = {},
+            lastQueriedItems,
             dataStore;
 
         options.identifier = options.identifier || defaults.identifier;
@@ -46,6 +47,19 @@ define([], function () {
                 else {
                     this.items = items.concat([]);
                 }
+            },
+
+            getIndex: function (item) {
+                if(typeof item !== 'object'){
+                    item = this.get(item);
+                }
+                var items = lastQueriedItems || this.items;
+                return items.indexOf(item);
+            },
+
+            getItemByIndex: function (index) {
+                var items = lastQueriedItems || this.items;
+                return items[index];
             },
 
             add: function (itemOrItems) {
@@ -112,14 +126,16 @@ define([], function () {
 
                 currentParams = mix(currentParams, params);
                 strParams = JSON.stringify(currentParams);
-                if (items && !altItems && strParams === lastParams) {
-                    return items;
+                if (items && !altItems && strParams === lastParams && lastQueriedItems) {
+                    return lastQueriedItems;
+                }
+
+                for (i = 0; i < plugins.length; i++) {
+                    items = plugins[i](items, currentParams, this);
                 }
                 if(!altItems) {
                     lastParams = strParams;
-                }
-                for (i = 0; i < plugins.length; i++) {
-                    items = plugins[i](items, currentParams, this);
+                    lastQueriedItems = items;
                 }
                 return items;
             },
@@ -311,11 +327,11 @@ define([], function () {
         var
             opts = dataStore.options.selection || {},
             multiple = !!opts.multiple,
-            additive = opts.additive,
-            selected;
+            selected,
+            lastSelected;
 
         function isSelected (item) {
-            if(!multiple){
+            if(!Array.isArray(selected)){
                 return item === selected;
             }
             for(var i = 0; i < selected.length; i++){
@@ -329,26 +345,87 @@ define([], function () {
         function select (item) {
             // handle item property?
             //item.selected = true;
-            if(multiple){
-                if(Array.isArray(selected)){
-                    if(selected.indexOf(item) === -1) {
-                        selected.push(item);
+
+            if(!multiple){
+                dataStore.control = false;
+                dataStore.shift = false;
+            }
+
+            if(multiple || dataStore.control || dataStore.shift){
+                if(!item){
+                    return;
+                }
+                if(dataStore.control || (multiple && !dataStore.shift)) {
+                    if (Array.isArray(selected)) {
+                        if (selected.indexOf(item) === -1) {
+                            selected.push(item);
+                            lastSelected = item;
+                        }
+                        else {
+                            return;
+                        }
                     }
-                }else{
-                    selected = [item];
+                    else if(selected){
+                        selected = [selected, item];
+                    }
+                    else {
+                        selected = [item];
+                    }
+                }
+                if(dataStore.shift){
+                    var
+                        a, b, i,
+                        lastItem = dataStore.getLastSelected(),
+                        lastIndex, itemIndex;
+
+                    if(!lastItem){
+                        selected = [item];
+                    }else{
+                        if(selected && !Array.isArray(selected)){
+                            selected = [selected];
+                        }
+                        lastIndex = dataStore.getIndex(lastItem);
+                        itemIndex = dataStore.getIndex(item);
+                        if(lastIndex < itemIndex){
+                            a = lastIndex;
+                            b = itemIndex;
+                        }else{
+                            b = lastIndex;
+                            a = itemIndex;
+                        }
+                        for(i = a + 1; i <= b; i++){
+                            selected.push(dataStore.getItemByIndex(i));
+                        }
+                    }
                 }
             }else{
                 //if(selected){
                 //    selected.selected = false;
                 //}
                 selected = item;
+
             }
+            lastSelected = item;
         }
+
+        dataStore.getLastSelected = function () {
+            if(lastSelected) {
+                return lastSelected;
+            }
+            if(selected){
+                if(Array.isArray(selected)){
+                    return selected[selected.length-1];
+                }else{
+                    return selected;
+                }
+            }
+            return null;
+        };
 
         function unselect (item) {
             // handle item property?
             //item.selected = false;
-            if(multiple){
+            if(Array.isArray(selected)){
                 selected = selected.filter(function (m) {
                     return m !== item;
                 });
@@ -358,10 +435,16 @@ define([], function () {
         }
 
         after(dataStore, 'add', function (itemOrItems) {
-            select(findSelected(itemOrItems));
+            var items = findSelected(itemOrItems);
+            if(items) {
+                select(items);
+            }
         });
         after(dataStore, 'set', function (itemOrItems) {
-            select(findSelected(itemOrItems));
+            var items = findSelected(itemOrItems);
+            if(items) {
+                select(items);
+            }
         });
         before(dataStore, 'remove', function (itemOrIdOrItemsOrIds) {
             var arr = Array.isArray(itemOrIdOrItemsOrIds) ? itemOrIdOrItemsOrIds : [itemOrIdOrItemsOrIds];
@@ -378,10 +461,11 @@ define([], function () {
 
         Object.defineProperty(dataStore, 'selection', {
             get: function () {
-                if(multiple){
+                if(Array.isArray(selected)){
                     return dataStore.query(0, selected);
                 }
-                return selected;
+                // TODO, this may need to be queried as well
+                return [selected];
 
             },
             set: function (itemOrId) {
@@ -399,16 +483,17 @@ define([], function () {
 
                     select(item);
                 }
+
                 if(Array.isArray(itemOrId)){
-                    if(!!multiple){
-                        if(!additive){
-                            selected = null;
-                        }
-                        itemOrId.forEach(setter);
-                    }else{
-                        console.error('To make a multi-selection, use `store({plugins: [\'selection\'], multiple:true})`');
+                    if(!dataStore.control){
+                        selected = null;
                     }
+                    itemOrId.forEach(setter);
+
                 }else{
+                    if(!dataStore.control && !dataStore.shift){
+                        selected = null;
+                    }
                     setter(itemOrId);
                 }
             }
