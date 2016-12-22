@@ -11,6 +11,7 @@
             plugins = [],
             lastParams = '',
             currentParams = {},
+            lastQueriedItems,
             dataStore;
 
         options.identifier = options.identifier || defaults.identifier;
@@ -110,8 +111,8 @@
 
                 currentParams = mix(currentParams, params);
                 strParams = JSON.stringify(currentParams);
-                if (items && !altItems && strParams === lastParams) {
-                    return items;
+                if (items && !altItems && strParams === lastParams && lastQueriedItems) {
+                    return lastQueriedItems;
                 }
                 if(!altItems) {
                     lastParams = strParams;
@@ -119,6 +120,7 @@
                 for (i = 0; i < plugins.length; i++) {
                     items = plugins[i](items, currentParams, this);
                 }
+                lastQueriedItems = items;
                 return items;
             },
 

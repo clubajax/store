@@ -36,8 +36,8 @@
         var
             opts = dataStore.options.selection || {},
             multiple = !!opts.multiple,
-            additive = opts.additive,
-            selected;
+            selected,
+            lastSelected;
 
         function isSelected (item) {
             if(!multiple){
@@ -55,11 +55,18 @@
             // handle item property?
             //item.selected = true;
             if(multiple){
+                if(!item){
+                    return;
+                }
                 if(Array.isArray(selected)){
                     if(selected.indexOf(item) === -1) {
                         selected.push(item);
+                        lastSelected = item;
+                    }else{
+                        return;
                     }
-                }else{
+                }
+                else{
                     selected = [item];
                 }
             }else{
@@ -67,8 +74,15 @@
                 //    selected.selected = false;
                 //}
                 selected = item;
+
             }
+            lastSelected = item;
         }
+
+        // for tests
+        dataStore.getLastSelected = function () {
+            return lastSelected;
+        };
 
         function unselect (item) {
             // handle item property?
@@ -124,9 +138,11 @@
 
                     select(item);
                 }
+
                 if(Array.isArray(itemOrId)){
-                    if(!!multiple){
-                        if(!additive){
+                    if(multiple){
+                        console.log('store.control', dataStore.control);
+                        if(!dataStore.control){
                             selected = null;
                         }
                         itemOrId.forEach(setter);
@@ -134,6 +150,11 @@
                         console.error('To make a multi-selection, use `store({plugins: [\'selection\'], multiple:true})`');
                     }
                 }else{
+                    if(multiple){
+                        if(!dataStore.control){
+                            selected = null;
+                        }
+                    }
                     setter(itemOrId);
                 }
             }
