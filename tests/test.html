@@ -329,7 +329,7 @@
                         var r, s = store({plugins: ['selection']});
                         s.set(cp(d1));
                         s.remove(3);
-                        r = s.selection[0];
+                        r = s.selection;
                         expect(!!r).to.equal(false);
                     });
 
@@ -337,7 +337,7 @@
                         var r, s = store({plugins: ['selection']});
                         s.set(cp(d1));
                         s.clear();
-                        r = s.selection[0];
+                        r = s.selection;
                         expect(!!r).to.equal(false);
                     });
 

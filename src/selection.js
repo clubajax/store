@@ -170,6 +170,9 @@
 
         Object.defineProperty(dataStore, 'selection', {
             get: function () {
+                if(!selected){
+                    return null;
+                }
                 if(Array.isArray(selected)){
                     return dataStore.query(0, selected);
                 }
