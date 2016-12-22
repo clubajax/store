@@ -310,18 +310,18 @@
                     });
                 });
 
-                xsuite('selection', function () {
+                suite('selection', function () {
                     test('it should set selection from items with `add`', function () {
                         var r, s = store({plugins: ['selection']});
                         s.add(cp(d1));
-                        r = s.selection;
+                        r = s.selection[0];
                         expect(r.id).to.equal(3);
                     });
 
                     test('it should set selection from items with `set`', function () {
                         var r, s = store({plugins: ['selection']});
                         s.set(cp(d1));
-                        r = s.selection;
+                        r = s.selection[0];
                         expect(r.id).to.equal(3);
                     });
 
@@ -329,23 +329,23 @@
                         var r, s = store({plugins: ['selection']});
                         s.set(cp(d1));
                         s.remove(3);
-                        r = s.selection;
-                        expect(r).to.equal(null);
+                        r = s.selection[0];
+                        expect(!!r).to.equal(false);
                     });
 
                     test('it should return null after `clear`', function () {
                         var r, s = store({plugins: ['selection']});
                         s.set(cp(d1));
                         s.clear();
-                        r = s.selection;
-                        expect(r).to.equal(null);
+                        r = s.selection[0];
+                        expect(!!r).to.equal(false);
                     });
 
                     test('it should set selected with an item', function () {
                         var r, s = store({plugins: ['selection']});
                         s.set(cp(d1));
                         s.selection = d1[1];
-                        r = s.selection;
+                        r = s.selection[0];
                         expect(r.id).to.equal(2);
                     });
 
@@ -353,16 +353,16 @@
                         var r, s = store({plugins: ['selection']});
                         s.set(cp(d1));
                         s.selection = d1[1].id;
-                        r = s.selection;
+                        r = s.selection[0];
                         expect(r.id).to.equal(2);
                     });
 
                     test('it should get selected from additional `add`', function () {
-                        var r, s = store({plugins: ['selection']});
+                        var r, s = store({plugins: ['selection'], selection:{multiple:true}});
                         s.set(cp(d1));
                         s.add(cp(d2));
                         r = s.selection;
-                        expect(r.id).to.equal(6);
+                        expect(ids(r, true)).to.equal('3,6');
                     });
 
                     test('it should get multiple selected', function () {
@@ -372,7 +372,6 @@
 
                         r = s.selection;
                         expect(Array.isArray(r)).to.equal(true);
-                        console.log('R', r);
                         expect(r[0].id).to.equal(3);
                         expect(r[1].id).to.equal(6);
                     });
@@ -450,8 +449,8 @@
                 });
 
                 suite('interactive', function () {
-                    xtest('it should add to selection with control-click', function () {
-                        var r, s = store({plugins: ['selection'], selection:{multiple:true, keys:true}});
+                    test('it should add to selection with `control`', function () {
+                        var r, s = store({plugins: ['selection'], selection:{multiple:true}});
 
                         s.set(d1);
                         s.add(d2);
@@ -473,39 +472,60 @@
 
                     });
 
-                    test('it should add to selection with shift-click', function () {
-                        var r, s = store({plugins: ['selection'], selection:{multiple:true, keys:true}});
-
-                        // CONFLICT between multiple and keys
-                        // will probably have to remove multiple
-                        // multiple wants to maintain the select
-                        // keys need to turn "multiple" on and off
+                    test('it should add to selection with `shift`', function () {
+                        var r, s = store({plugins: ['selection'], selection:{multiple:true}});
                         s.set(d1);
                         s.add(d2);
                         s.add(d22);
                         r = s.selection;
                         expect(ids(r, true)).to.equal('3,6');
-                        console.log('all', ids(s.query(), true));
-                        console.log('selected', ids(r, true));
 
                         s.selection = 3;
+                        r = s.selection;
                         expect(ids(r, true)).to.equal('3');
 
-                        return
-                        expect(ids(r, true)).to.equal('3,6');
-
-                        s.selection = 2;
+                        s.shift = true;
+                        s.selection = 6;
                         r = s.selection;
-                        expect(ids(r, true)).to.equal('2');
+                        expect(ids(r, true)).to.equal('3,4,5,6');
+
+                    });
+
+                    test('it should ignore `shift` if `multiple` is false', function () {
+                        var r, s = store({plugins: ['selection'], selection:{multiple:false}});
+                        s.set(d1);
+                        s.add(d2);
+                        s.add(d22);
+                        r = s.selection;
+                        expect(ids(r, true)).to.equal('6');
+
+                        s.selection = 3;
+                        r = s.selection;
+                        expect(ids(r, true)).to.equal('3');
+
+                        s.shift = true;
+                        s.selection = 5;
+                        r = s.selection;
+                        expect(ids(r, true)).to.equal('5');
+
+                    });
+
+                    test('it should ignore `control` if `multiple` is false', function () {
+                        var r, s = store({plugins: ['selection'], selection:{multiple:false}});
+                        s.set(d1);
+                        s.add(d2);
+                        s.add(d22);
+                        r = s.selection;
+                        expect(ids(r, true)).to.equal('6');
+
+                        s.selection = 3;
+                        r = s.selection;
+                        expect(ids(r, true)).to.equal('3');
 
                         s.control = true;
-                        s.selection = 4;
+                        s.selection = 5;
                         r = s.selection;
-                        expect(ids(r, true)).to.equal('2,4');
-
-                        s.selection = 1;
-                        r = s.selection;
-                        expect(ids(r, true)).to.equal('1,2,4');
+                        expect(ids(r, true)).to.equal('5');
 
                     });
                 });

@@ -47,6 +47,19 @@
                 }
             },
 
+            getIndex: function (item) {
+                if(typeof item !== 'object'){
+                    item = this.get(item);
+                }
+                var items = lastQueriedItems || this.items;
+                return items.indexOf(item);
+            },
+
+            getItemByIndex: function (index) {
+                var items = lastQueriedItems || this.items;
+                return items[index];
+            },
+
             add: function (itemOrItems) {
                 // add item or items to existing
                 if (!this.items) {
@@ -114,13 +127,14 @@
                 if (items && !altItems && strParams === lastParams && lastQueriedItems) {
                     return lastQueriedItems;
                 }
-                if(!altItems) {
-                    lastParams = strParams;
-                }
+
                 for (i = 0; i < plugins.length; i++) {
                     items = plugins[i](items, currentParams, this);
                 }
-                lastQueriedItems = items;
+                if(!altItems) {
+                    lastParams = strParams;
+                    lastQueriedItems = items;
+                }
                 return items;
             },
 
