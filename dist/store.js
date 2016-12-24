@@ -47,6 +47,8 @@ define([], function () {
                 else {
                     this.items = items.concat([]);
                 }
+                lastParams = '';
+                currentParams = {};
             },
 
             getIndex: function (item) {
@@ -73,6 +75,8 @@ define([], function () {
                 else {
                     this.items.push(itemOrItems);
                 }
+                lastParams = '';
+                currentParams = {};
             },
 
             remove: function (itemsOrIdOrIds) {
@@ -92,6 +96,8 @@ define([], function () {
                         }
                     }
                 }
+                lastParams = '';
+                currentParams = {};
             },
 
             clear: function () {
@@ -104,6 +110,11 @@ define([], function () {
             fetch: function () {
                 console.error('please use query');
             },
+
+            get hasListChanged () {
+                return !!lastParams;
+            },
+
             query: function (params, altItems) {
                 //this.params = {
                 //    filter:{
@@ -393,7 +404,7 @@ define([], function () {
                             b = lastIndex;
                             a = itemIndex;
                         }
-                        for(i = a + 1; i <= b; i++){
+                        for(i = a; i <= b; i++){
                             selected.push(dataStore.getItemByIndex(i));
                         }
                     }
@@ -458,6 +469,8 @@ define([], function () {
         after(dataStore, 'clear', function (itemOrItems) {
             selected = null;
         });
+
+        // hasSelectionChanged: can't realistically determine this
 
         Object.defineProperty(dataStore, 'selection', {
             get: function () {

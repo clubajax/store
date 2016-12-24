@@ -102,7 +102,7 @@
                             b = lastIndex;
                             a = itemIndex;
                         }
-                        for(i = a + 1; i <= b; i++){
+                        for(i = a; i <= b; i++){
                             selected.push(dataStore.getItemByIndex(i));
                         }
                     }
@@ -167,6 +167,8 @@
         after(dataStore, 'clear', function (itemOrItems) {
             selected = null;
         });
+
+        // hasSelectionChanged: can't realistically determine this
 
         Object.defineProperty(dataStore, 'selection', {
             get: function () {

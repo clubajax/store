@@ -45,6 +45,8 @@
                 else {
                     this.items = items.concat([]);
                 }
+                lastParams = '';
+                currentParams = {};
             },
 
             getIndex: function (item) {
@@ -71,6 +73,8 @@
                 else {
                     this.items.push(itemOrItems);
                 }
+                lastParams = '';
+                currentParams = {};
             },
 
             remove: function (itemsOrIdOrIds) {
@@ -90,6 +94,8 @@
                         }
                     }
                 }
+                lastParams = '';
+                currentParams = {};
             },
 
             clear: function () {
@@ -102,6 +108,11 @@
             fetch: function () {
                 console.error('please use query');
             },
+
+            get hasListChanged () {
+                return !!lastParams;
+            },
+
             query: function (params, altItems) {
                 //this.params = {
                 //    filter:{
