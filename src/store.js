@@ -12,7 +12,8 @@
             lastParams = '',
             currentParams = {},
             lastQueriedItems,
-            dataStore;
+            dataStore,
+            changes = true;
 
         options.identifier = options.identifier || defaults.identifier;
 
@@ -47,6 +48,7 @@
                 }
                 lastParams = '';
                 currentParams = {};
+                changes = true;
             },
 
             getIndex: function (item) {
@@ -75,6 +77,7 @@
                 }
                 lastParams = '';
                 currentParams = {};
+                changes = true;
             },
 
             remove: function (itemsOrIdOrIds) {
@@ -96,6 +99,7 @@
                 }
                 lastParams = '';
                 currentParams = {};
+                changes = true;
             },
 
             clear: function () {
@@ -103,6 +107,7 @@
                 this.items = [];
                 lastParams = '';
                 currentParams = {};
+                changes = true;
             },
 
             fetch: function () {
@@ -110,7 +115,7 @@
             },
 
             get hasListChanged () {
-                return !!lastParams;
+                return changes;
             },
 
             query: function (params, altItems) {
@@ -145,6 +150,7 @@
                 if(!altItems) {
                     lastParams = strParams;
                     lastQueriedItems = items;
+                    changes = false;
                 }
                 return items;
             },

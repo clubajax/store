@@ -113,7 +113,7 @@
             }
 
             suite('store', function () {
-                xsuite('get and set', function () {
+                suite('get and set', function () {
                     test('it should get and set', function () {
                         var s = store();
                         s.add(d1);
@@ -131,6 +131,36 @@
                         var s = store({identifier: 'name'});
                         s.add(d3);
                         expect(s.get(true, 'selected').value).to.equal('bar');
+                    });
+                    test('it should know if there are changes', function () {
+                        var items, s = store();
+                        expect(s.hasListChanged).to.equal(true);
+                        s.add(d1);
+                        expect(s.hasListChanged).to.equal(true);
+                        expect(s.get()).to.equal(null);
+                        expect(s.hasListChanged).to.equal(true);
+
+
+                        expect(s.get(1).value).to.equal('a');
+                        s.add(d2);
+
+                        s.query();
+                        expect(s.hasListChanged).to.equal(false);
+
+                        s.query();
+                        expect(s.hasListChanged).to.equal(false);
+
+                        s.set(d1);
+                        expect(s.hasListChanged).to.equal(true);
+
+                        s.query();
+                        expect(s.hasListChanged).to.equal(false);
+                        items = s.query();
+                        expect(s.hasListChanged).to.equal(false);
+
+                        s.remove(items[0]);
+                        expect(s.hasListChanged).to.equal(true);
+
                     });
                 });
 
@@ -220,7 +250,7 @@
                     });
                 });
 
-                xsuite('misc', function () {
+                xsuite('plugins', function () {
                     test('it should filter, sort, and paginate', function () {
                         var r, s = store({plugins: 'sort,filter,paginate'});
                         s.set(d4);
@@ -309,11 +339,10 @@
 
                         r = s.query(q);
                         expect(values(r)).to.equal('20,17,16,15,12');
-
                     });
                 });
 
-                suite('selection', function () {
+                xsuite('selection', function () {
                     test('it should set selection from items with `add`', function () {
                         var r, s = store({plugins: ['selection']});
                         s.add(cp(d1));
@@ -451,7 +480,7 @@
                     });
                 });
 
-                suite('interactive', function () {
+                xsuite('interactive', function () {
                     test('it should add to selection with `control`', function () {
                         var r, s = store({plugins: ['selection'], selection:{multiple:true}});
 

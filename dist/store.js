@@ -14,7 +14,8 @@ define([], function () {
             lastParams = '',
             currentParams = {},
             lastQueriedItems,
-            dataStore;
+            dataStore,
+            changes = true;
 
         options.identifier = options.identifier || defaults.identifier;
 
@@ -49,6 +50,7 @@ define([], function () {
                 }
                 lastParams = '';
                 currentParams = {};
+                changes = true;
             },
 
             getIndex: function (item) {
@@ -77,6 +79,7 @@ define([], function () {
                 }
                 lastParams = '';
                 currentParams = {};
+                changes = true;
             },
 
             remove: function (itemsOrIdOrIds) {
@@ -98,6 +101,7 @@ define([], function () {
                 }
                 lastParams = '';
                 currentParams = {};
+                changes = true;
             },
 
             clear: function () {
@@ -105,6 +109,7 @@ define([], function () {
                 this.items = [];
                 lastParams = '';
                 currentParams = {};
+                changes = true;
             },
 
             fetch: function () {
@@ -112,7 +117,7 @@ define([], function () {
             },
 
             get hasListChanged () {
-                return !!lastParams;
+                return changes;
             },
 
             query: function (params, altItems) {
@@ -147,6 +152,7 @@ define([], function () {
                 if(!altItems) {
                     lastParams = strParams;
                     lastQueriedItems = items;
+                    changes = false;
                 }
                 return items;
             },
