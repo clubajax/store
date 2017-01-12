@@ -249,6 +249,24 @@
         return [];
     }
 
+    store.getIdentifier = function (itemOrItems) {
+        var item = Array.isArray(itemOrItems) ? itemOrItems[0] : itemOrItems;
+        if(item.id){
+            return 'id';
+        }
+        if (item.value !== undefined) {
+            return 'value';
+        }
+        if(item.name){
+            return 'name';
+        }
+        if (item.label) {
+            return 'label';
+        }
+        console.error('items must have use of the following identifiers: `id`, `value`, `name`, `label`');
+        return null;
+    };
+
     
 
 
