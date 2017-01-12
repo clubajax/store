@@ -19,6 +19,8 @@
 
         dataStore = {
 
+            identifier: options.identifier,
+
             get: function (value, optionalIdentifier) {
                 // always returns one item or null
                 if (!value || !this.items) {
